@@ -24,7 +24,9 @@ jobs:
         run: pip install platformio
 
       - name: Prepare source file
-        run: cp esp32_relay_ota_webui.ino src/main.cpp
+        run: |
+          mkdir -p src
+          cp esp32_relay_ota_webui.ino src/main.cpp
 
       - name: Build (USB env)
         run: pio run -e esp32usb
