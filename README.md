@@ -1,5 +1,7 @@
 # ESP32 Relay Board x8
 
+[![Build Firmware](https://github.com/camolas71/esp32-relay-board-x8/actions/workflows/build-firmware.yml/badge.svg)](https://github.com/camolas71/esp32-relay-board-x8/actions/workflows/build-firmware.yml)
+
 ESP32 firmware for the 8-relay ESP32-WROOM-32E board with OTA updates, a built-in web UI, and ready-to-import Node-RED flows.
 
 ## Features
@@ -67,6 +69,16 @@ The web UI provides:
 - Buttons to switch all relays ON or OFF
 - Editable relay names with persistent storage
 - Status refresh and uptime display
+
+### Screenshots
+
+Desktop:
+
+![ESP32 Relay UI Desktop](docs/images/ui-desktop.png)
+
+Mobile:
+
+![ESP32 Relay UI Mobile](docs/images/ui-mobile.png)
 
 ## HTTP API
 
