@@ -1,0 +1,6 @@
+.pio/
+.vscode/*.code-workspace
+src/main.cpp
+ota_last_run.log
+local_secrets.h
+platformio.local.ini

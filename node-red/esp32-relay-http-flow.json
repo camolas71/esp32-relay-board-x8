@@ -1,0 +1,200 @@
+[
+  {
+    "id": "a1f7f4fbe9a4c001",
+    "type": "tab",
+    "label": "ESP32 Relay x8 HTTP",
+    "disabled": false,
+    "info": "Controls ESP32 relays over HTTP API"
+  },
+  {
+    "id": "b4a7eaad5d998001",
+    "type": "inject",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "Relay 1 ON",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"ch\":1,\"state\":1}",
+    "payloadType": "json",
+    "x": 140,
+    "y": 80,
+    "wires": [
+      [
+        "d4f7b66b5e1b1001"
+      ]
+    ]
+  },
+  {
+    "id": "b4a7eaad5d998002",
+    "type": "inject",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "Relay 1 OFF",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"ch\":1,\"state\":0}",
+    "payloadType": "json",
+    "x": 140,
+    "y": 120,
+    "wires": [
+      [
+        "d4f7b66b5e1b1001"
+      ]
+    ]
+  },
+  {
+    "id": "b4a7eaad5d998003",
+    "type": "inject",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "All ON",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"all\":1,\"state\":1}",
+    "payloadType": "json",
+    "x": 120,
+    "y": 180,
+    "wires": [
+      [
+        "d4f7b66b5e1b1001"
+      ]
+    ]
+  },
+  {
+    "id": "b4a7eaad5d998004",
+    "type": "inject",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "All OFF",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"all\":1,\"state\":0}",
+    "payloadType": "json",
+    "x": 120,
+    "y": 220,
+    "wires": [
+      [
+        "d4f7b66b5e1b1001"
+      ]
+    ]
+  },
+  {
+    "id": "d4f7b66b5e1b1001",
+    "type": "function",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "Build ESP32 URL",
+    "func": "const base = \"http://192.168.1.120\";\n\nif (msg.payload && msg.payload.all === 1) {\n    const st = Number(msg.payload.state) ? 1 : 0;\n    msg.method = \"GET\";\n    msg.url = `${base}/api/all?state=${st}`;\n    return msg;\n}\n\nif (!msg.payload || typeof msg.payload.ch === \"undefined\") {\n    node.error(\"Payload must include ch and state, or all=1 and state\", msg);\n    return null;\n}\n\nconst ch = Number(msg.payload.ch);\nconst st = Number(msg.payload.state) ? 1 : 0;\n\nif (!Number.isInteger(ch) || ch < 1 || ch > 8) {\n    node.error(\"ch must be integer 1..8\", msg);\n    return null;\n}\n\nmsg.method = \"GET\";\nmsg.url = `${base}/api/relay?ch=${ch}&state=${st}`;\nreturn msg;",
+    "outputs": 1,
+    "timeout": "",
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 370,
+    "y": 140,
+    "wires": [
+      [
+        "eb0a9ffefc53d001"
+      ]
+    ]
+  },
+  {
+    "id": "eb0a9ffefc53d001",
+    "type": "http request",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "Call ESP32 API",
+    "method": "use",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 610,
+    "y": 140,
+    "wires": [
+      [
+        "f2670749507d2001"
+      ]
+    ]
+  },
+  {
+    "id": "f2670749507d2001",
+    "type": "debug",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "ESP32 response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 820,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "ca8a9c17adf76001",
+    "type": "inject",
+    "z": "a1f7f4fbe9a4c001",
+    "name": "Get status",
+    "props": [
+      {
+        "p": "method",
+        "v": "GET",
+        "vt": "str"
+      },
+      {
+        "p": "url",
+        "v": "http://192.168.1.120/api/status",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 130,
+    "y": 280,
+    "wires": [
+      [
+        "eb0a9ffefc53d001"
+      ]
+    ]
+  }
+]
