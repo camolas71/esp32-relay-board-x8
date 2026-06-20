@@ -1,0 +1,56 @@
+name: Release Firmware Asset
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag (example: v1.0.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-attach:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Prepare source file
+        run: |
+          mkdir -p src
+          cp esp32_relay_ota_webui.ino src/main.cpp
+
+      - name: Build firmware (USB env)
+        run: pio run -e esp32usb
+
+      - name: Prepare release artifact
+        run: |
+          mkdir -p dist
+          cp .pio/build/esp32usb/firmware.bin dist/esp32-relay-board-x8-firmware.bin
+
+      - name: Upload artifact to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32-relay-board-x8-firmware
+          path: dist/esp32-relay-board-x8-firmware.bin
+
+      - name: Attach firmware to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name || inputs.tag }}
+          files: dist/esp32-relay-board-x8-firmware.bin
+          fail_on_unmatched_files: true
