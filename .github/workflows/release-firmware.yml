@@ -7,8 +7,7 @@ on:
     inputs:
       tag:
         description: Existing release tag (example: v1.0.0)
-        required: true
-        type: string
+        required: false
 
 permissions:
   contents: write
@@ -16,6 +15,8 @@ permissions:
 jobs:
   build-and-attach:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ""
 
     steps:
       - name: Checkout
@@ -37,6 +38,19 @@ jobs:
       - name: Build firmware (USB env)
         run: pio run -e esp32usb
 
+      - name: Resolve release tag
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          if [ -z "$TAG" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          fi
+          if [ -z "$TAG" ]; then
+            echo "Missing release tag. Provide it in workflow_dispatch input 'tag'."
+            exit 1
+          fi
+          echo "RELEASE_TAG=$TAG" >> "$GITHUB_ENV"
+
       - name: Prepare release artifact
         run: |
           mkdir -p dist
@@ -51,6 +65,6 @@ jobs:
       - name: Attach firmware to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.release.tag_name || inputs.tag }}
+          tag_name: ${{ env.RELEASE_TAG }}
           files: dist/esp32-relay-board-x8-firmware.bin
           fail_on_unmatched_files: true
